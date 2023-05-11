@@ -65,13 +65,15 @@ public class ListDE {
     }
 
     /*
-    metodo para que las luces se prendan desde la mitad
+    Método para que las luces se prendan desde la mitad
     preguntamos si hay datos
-    si hay datos, preguntamos que si es par
-        si es par, cogemos ese led y el siguiente y los encendemos poniendoles la hora y que se apaguen al pasar 1 segundo,
+    si hay datos, pregunto si hay más de un dato, si no hay más de un dato, enciendo la cabeza
+    sino
+    si hay datos preguntamos que si es par
+        si es par, cogemos ese led y el siguiente y los encendemos poniéndoles la hora y que se apaguen al pasar 1 segundo,
         llamamos dos ayudantes los cuales nos ayuden a tomar el nodo anterior y el siguiente y los prenda con la fecha actual
          y que al pasar 1 segundo se apaguen
-    despues decimos que mientras el temp.getNext sea diferente de nulo
+    después decimos que mientras el temp.getNext sea diferente de nulo
     que el nodo temporal obtenga los datos del led y coloque el estado del led en falso, cuando haga esto debemos decirle al localtime que
     guarde la hora
     y le decimos al temporal que coge al nodo anterior que que obtenga los datos del led y que coloque el estado del led en falso tambien,
@@ -104,11 +106,14 @@ public class ListDE {
 
 
     public void turnOnLightStartInTheMiddle() throws InterruptedException {
-        if (size % 2 == 0){
-            int middle = (size/2);
             NodeDE temp = head;
             int steps = 1;
-
+        if (size == 1){
+            temp.getData().setStatus(true);
+            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+        }
+        if (size % 2 == 0){
+            int middle = (size/2);
             while (temp != null){
                 if (steps == (middle + 1)){
                     temp.getData().setStatus(true);
@@ -142,7 +147,6 @@ public class ListDE {
             }
         }else{
             int medium = (size/2)+1;
-            NodeDE temp = head;
             int pasos = 1;
             while (temp != null){
                 if (pasos == medium){
@@ -175,7 +179,7 @@ public class ListDE {
     /*
     Honestamente siento que me hacen falta unas cosas para poder mejorar el codigo, pero asi es como lo pensé
     y lo resolví, siento que hace falta en algunos aspectos de como pensé el algoritmo y como lo resolví
-    a medida que lo pensaba me salian mas dudas de como resolverlo, pero pienso que esta bien asi
+    a medida que lo pensaba me salían mas dudas de como resolverlo, pero pienso que esta bien asi
      */
 }
 
