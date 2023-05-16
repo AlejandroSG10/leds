@@ -14,19 +14,33 @@ public class ListDE {
         private NodeDE tail;
         private List<Led> leds = new ArrayList<>();
 
-
-    public void addLed(Led led){
-        if (head == null){
-            this.head = new NodeDE(led);
-        }else {
+    public void addLed(Led led) {
+        if (head != null) {
             NodeDE newNode = new NodeDE(led);
             NodeDE temp = head;
-            while (temp.getNext() != null){
+            while (temp.getNext() != null) {
                 temp = temp.getNext();
             }
             temp.setNext(newNode);
-            temp.setPrevious(temp);
+            newNode.setPrevious(temp);
+        } else {
+            head = new NodeDE(led);
         }
+        size++;
+    }
+    public void addLedToEnd(Led led) {
+        if (head == null) {
+            head = new NodeDE(led);
+        } else {
+            NodeDE newNode = new NodeDE(led);
+            NodeDE current = head;
+            while (current.getNext() != null) {
+                current = current.getNext();
+            }
+            current.setNext(newNode);
+            newNode.setPrevious(current);
+        }
+        size++;
     }
 
     public List<Led> print() {
@@ -50,137 +64,142 @@ public class ListDE {
         head = newNode;
         size++;
     }
-
-    public void addToEnd(Led led) {
-        NodeDE newNode = new NodeDE(led);
-        if (head == null) {
-            head = newNode;
-            tail = newNode;
-        } else {
-            tail.setNext(newNode);
-            newNode.setPrevious(tail);
-            tail = newNode;
-        }
-        size++;
-    }
-
     /*
-    Método para que las luces se prendan desde la mitad
+    Algoritmo para encender los leds empezando por la mitad
     preguntamos si hay datos
-    si hay datos, pregunto si hay más de un dato, si no hay más de un dato, enciendo la cabeza
-    sino
-    si hay datos preguntamos que si es par
-        si es par, cogemos ese led y el siguiente y los encendemos poniéndoles la hora y que se apaguen al pasar 1 segundo,
-        llamamos dos ayudantes los cuales nos ayuden a tomar el nodo anterior y el siguiente y los prenda con la fecha actual
-         y que al pasar 1 segundo se apaguen
-    después decimos que mientras el temp.getNext sea diferente de nulo
-    que el nodo temporal obtenga los datos del led y coloque el estado del led en falso, cuando haga esto debemos decirle al localtime que
-    guarde la hora
-    y le decimos al temporal que coge al nodo anterior que que obtenga los datos del led y que coloque el estado del led en falso tambien,
-    debemos tambien guardar la hora a la que se hizo esto
-
-    despues le decimos al temporal que se pase al siguiente y lo encienda, cuando el estado pase a true, el local time debe guardar
-    la hora a la que lo hizo y pasado un segundo apagarlo
-    tambien le decimos al temporal que va a tomar el nodo anterior que haga lo mismo.
-
-    si no es un numero par
-    creamos un temporal que se va a parar en la mitad de la lista
-    hacemos que mientras haya datos se haga lo que vamos a pedir a continuacion
-
-        el tamaño de la lista de los leds se divide entre dos para saber la mitad,
-        como la mitad de una lista impar es solo un numero, ejemplo de 15 la mitad en una lista seria el numero 8
-        tomamos ese nodo y lo encendemos y tomamos la hora en la que se encendio, al pasar un segundo se apaga el led
-         y se guarda la hora a la que se hizo
-    preguntamos si el temp.getNext es diferente de nulo
-    si es diferente a nulo, creamos un temporal el cual tome el nodo previo
-       le decimos al temporal que se pase al siguiente y que parado en el siguiente encienda el led
-         y guarde la hora a la que se hizo, pasado un segundo y que se apague.
-        le decimos tambien al otro temporal que tiene el nodo previo que encienda el anterior y que guarde la hora en lo que lo hizo,
-        y pasado un segundo que se apague.
-
+    si hay, creo 3 variables, un temporal que me recorra la lista
+    una que se llame pasos
+    y una que se llame medium
+    hacemos una condicion que me pregunte que si la lista es impar
+    si es impar tomo el tamaño de la lista y lo divido en 2 y le aumento 1 para que se pare en el nodo del medio
+    hacemos que mientras el temporal sea diferente de nulo que me haga otras condiciones
+    decimos que si los pasos son igual a la mitad de la lista que prenda el led y diga la hora en que se prendió
+    y creamos una variable que va a tomar el nodo siguiente mientras que temporal va a tomar el nodo anterior
+    adentro de ese condicional decimo que mientras en el siguiente nodo haya datos
+    le agrego una excepcion llamada sleep que haga que espere 1 segundo despues de prender un bombillo
+    despues le digo al estado del led que se apague y que se guarde la hora en la que se apagó
+    despues le digo al temporal que se pase al nodo previo y a la variable que cree que se pase al siguiente
+    y digo que el estado de los leds se enciendan y que me diga la hora en que lo hizo,
+    con la excepcion que le hice me debe apagar los leds al pasar 1 segundo y guardarme la hora en que lo hizo
+    el temporal y la variable deben hacer esto hasta que la variable que se pasa al siguiente sea igual a nulo
+    aumento los pasos en 1 y le digo al temporal que se pase al siguiente cada vez que se haga este ciclo
+    por otro lado si la lista no es impar
+    divido la lista entre 2 para saber la mitad
+    y hago un ciclo el cual se haga mientras el temporal sea diferente de nulo
+    si pasos es igual a la mitad de la lista
+    creo una variable la cual sea el nodo siguiente en los cuales estan los leds
+    hago que el estado de los leds de la mitad se enciendan y me guarden la hora en lo que lo hicieron
+    despues haría un ciclo el cual me diga que mientras la variable que se pasa al siguiente sea diferente de nulo
+    me apague los nodos de la mitad y me guarde la hora y se pase al siguiente y al anterior de esos nodos de la mitad
+    cuando se pase, cambia el estado de los leds para que se enciendan y guarde la hora
+    al pasar un segundo y con la excepcion ya hecha me debe apagar y decirme la hora en lo que lo hizo
+    y asi sería el ciclo hasta que llegue a los extremos o como es decir que hasta que la variable que cree para
+    que se pase al siguiente sea nula y hasta ahí va mi codigo
      */
 
-
-
-
-
-
-    public void turnOnLightStartInTheMiddle() throws InterruptedException {
+    public  void turnOnLightStartInTheMiddle(){
+        if (head != null) {
             NodeDE temp = head;
-            int steps = 1;
-        if (size == 1){
-            temp.getData().setStatus(true);
-            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-        }
-        if (size % 2 == 0){
-            int middle = (size/2);
-            while (temp != null){
-                if (steps == (middle + 1)){
-                    temp.getData().setStatus(true);
-                    temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-
-                    NodeDE tempPrev = temp.getPrevious();
-                    tempPrev.getData().setStatus(true);
-                    tempPrev.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-
-                    if (temp.getNext() != null){
-                        while (temp.getNext() != null){
-                            Thread.sleep(1000);
-                            temp.getData().setStatus(false);
-                            temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-
-                            tempPrev.getData().setStatus(false);
-                            tempPrev.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-
-                            temp = temp.getNext();
-                            temp.getData().setStatus(true);
-                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-
-                            tempPrev = temp.getPrevious();
-                            tempPrev.getData().setStatus(true);
-                            tempPrev.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-                        }
-                    }
-                }
-                steps ++;
-                temp = temp.getNext();
-            }
-        }else{
-            int medium = (size/2)+1;
             int pasos = 1;
-            while (temp != null){
-                if (pasos == medium){
-                    temp.getData().setStatus(true);
-                    temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-                    NodeDE tempPrev = temp.getPrevious();
-                    if (temp.getNext() != null){
-                        Thread.sleep(1000);
-                        temp.getData().setStatus(false);
-                        temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+            int medium;
+            if ((size%2)!=0){
+                medium = (size / 2) + 1;
+                while (temp!= null){
 
-                        tempPrev.getData().setStatus(false);
-                        tempPrev.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-
-                        temp = temp.getNext();
+                    if (pasos == medium){
+                        NodeDE next = temp;
                         temp.getData().setStatus(true);
                         temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
 
-                        tempPrev = temp.getPrevious();
-                        tempPrev.getData().setStatus(true);
-                        tempPrev.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        while (next.getNext() != null){
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            temp.getData().setStatus(false);
+                            temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            next.getData().setStatus(false);
+                            next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+
+                            temp = temp.getPrevious();
+                            next= next.getNext();
+
+                            temp.getData().setStatus(true);
+                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            next.getData().setStatus(true);
+                            next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+
+
+
+                        }
                     }
+                    pasos++;
+                    temp= temp.getNext();
+
+
                 }
+
+
+
+
+            } else{
+                medium = size/2;
+
+                while (temp!= null){
+                    if (pasos == medium){
+                        NodeDE Next = temp.getNext();
+                        temp.getData().setStatus(true);
+                        temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        Next.getData().setStatus(true);
+                        Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+
+                        while (Next.getNext() != null) {
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            temp.getData().setStatus(false);
+                            temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            Next.getData().setStatus(false);
+                            Next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+
+                            temp = temp.getPrevious();
+                            Next = Next.getNext();
+
+                            temp.getData().setStatus(true);
+                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            Next.getData().setStatus(true);
+                            Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+
+
+                        }
+                    }
+                    pasos++;
+                    temp= temp.getNext();
+
+                }
+
             }
-            pasos ++;
-            temp.getNext();
+
+        }
+
+    }
+    public void restart() {
+        NodeDE temp = head;
+        while (temp != null){
+            temp.getData().setStatus(false);
+            temp.getData().setOffDate(null);
+            temp.getData().setOnDate(null);
+
+            temp = temp.getNext();
         }
     }
-
-    /*
-    Honestamente siento que me hacen falta unas cosas para poder mejorar el codigo, pero asi es como lo pensé
-    y lo resolví, siento que hace falta en algunos aspectos de como pensé el algoritmo y como lo resolví
-    a medida que lo pensaba me salían mas dudas de como resolverlo, pero pienso que esta bien asi
-     */
 }
 
 
