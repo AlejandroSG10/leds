@@ -18,23 +18,18 @@ public class ListDEController {
 
 
     @GetMapping
-    public ResponseEntity<ResponseDTO> getLeds() {
+    public ResponseEntity<ResponseDTO> getLeds() throws ListDEException {
         return new ResponseEntity<>(new ResponseDTO(
                 200, listDEService.getLeds().print(), null), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> addLed(@RequestBody LedDTO ledDTO) throws ListDEException {
-        Led newLed = new Led(ledDTO.getId() , false);
-        listDEService.getLeds().addLed(newLed);
-        return new ResponseEntity<>(new ResponseDTO(200, "la bombilla fue añadida", null), HttpStatus.OK);
-    }
-    @PostMapping(path = "/add/{id}")
-    public ResponseEntity<ResponseDTO> addLedToEnd(@PathVariable int id){
-
-        listDEService.getLeds().addLedToEnd(new Led(id,false));
+    public ResponseEntity<ResponseDTO> addPet(@RequestBody LedDTO ledDTO) {
+        Led led = new Led(ledDTO.getId(), false, ledDTO.getColor(), false);
+        listDEService.getLeds().addLed(led);
         return new ResponseEntity<>(new ResponseDTO(
-                200, "la bombilla fue añadida", null), HttpStatus.OK);
+                200, "Se ha adicionado el led",
+                null), HttpStatus.OK);
 
     }
 
@@ -62,7 +57,28 @@ public class ListDEController {
         listDEService.getLeds().restart();
         return new ResponseEntity<>(new ResponseDTO(200, "la bombillas reiniciaron su estado", null), HttpStatus.OK);
     }
+
+    @GetMapping(path = "/meltled")
+    public ResponseEntity<ResponseDTO> getBathedPet() {
+        Led led = listDEService.getLeds().meltLed();
+        if (led == null){
+            return new ResponseEntity<>(new ResponseDTO(200,
+                    "El led ya está fundido", null), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(new ResponseDTO(200,
+                    "El led "+led.getId() + " se fundió", null), HttpStatus.OK);
+        }
+    }
+    @PostMapping(path = "/replaceledmolten/{id}")
+    public ResponseEntity<ResponseDTO> changeLed(@RequestBody LedDTO ledDTO, @PathVariable int id){
+
+           Led led = new Led(ledDTO.getId(), false, ledDTO.getColor(), false);
+           listDEService.getLeds().changeLedMolten(led, id);
+
+        return new ResponseEntity<>(new ResponseDTO(200, "Se ha cambiado el led fundido", null), HttpStatus.OK);
+    }
 }
+
 
 
 

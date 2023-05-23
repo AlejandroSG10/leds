@@ -1,61 +1,68 @@
 package co.edu.umanizales.leds.model;
 
+import co.edu.umanizales.leds.exception.ListDEException;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 @Data
 public class ListDE {
 
-        private NodeDE head;
-        private int size;
-        private NodeDE tail;
-        private List<Led> leds = new ArrayList<>();
+    private NodeDE head;
+    private int size;
+    private NodeDE tail;
+    private List<Led> leds = new ArrayList<>();
 
     public void addLed(Led led) {
-        if (head != null) {
-            NodeDE newNode = new NodeDE(led);
-            NodeDE temp = head;
-            while (temp.getNext() != null) {
-                temp = temp.getNext();
-            }
-            temp.setNext(newNode);
-            newNode.setPrevious(temp);
-        } else {
-            head = new NodeDE(led);
-        }
-        size++;
-    }
-    public void addLedToEnd(Led led) {
+        NodeDE newNode = new NodeDE(led);
         if (head == null) {
-            head = new NodeDE(led);
-        } else {
-            NodeDE newNode = new NodeDE(led);
-            NodeDE current = head;
-            while (current.getNext() != null) {
-                current = current.getNext();
-            }
-            current.setNext(newNode);
-            newNode.setPrevious(current);
+            head = newNode;
+            newNode.setNext(head);
+            newNode.setPrevious(head);
+        }
+        if (size == 1) {
+            head.setPrevious(newNode);
+            head.setNext(newNode);
+            newNode.setNext(head);
+            newNode.setPrevious(head);
+        }
+        NodeDE laterNode = head.getPrevious();
+        if (size > 1) {
+            head.setPrevious(newNode);
+            newNode.setNext(head);
+            newNode.setPrevious(laterNode);
+            laterNode.setNext(newNode);
         }
         size++;
     }
 
-    public List<Led> print() {
-        leds.clear();
-        if (head != null) {
-            NodeDE temp = head;
-            while (temp != null) {
-                leds.add(temp.getData());
-                temp = temp.getNext();
-            }
+    public Led[] print() throws ListDEException {
+        Led[] ledList = new Led[size];
+        if (size == 0) {
+            return ledList;
         }
-        return leds;
+        int num = 0;
+        NodeDE temp = head;
+
+        if (temp == null) {
+            throw new ListDEException("La lista está vacía");
+        }
+
+        do {
+            ledList[num] = temp.getData();
+            temp = temp.getNext();
+            num++;
+        } while (temp != head);
+
+        return ledList;
     }
 
-    public void addToStart(Led led)  {
+
+    public void addToStart(Led led) {
         NodeDE newNode = new NodeDE(led);
         if (head != null) {
             head.setPrevious(newNode);
@@ -94,67 +101,95 @@ public class ListDE {
     cuando se pase, cambia el estado de los leds para que se enciendan y guarde la hora
     al pasar un segundo y con la excepcion ya hecha me debe apagar y decirme la hora en lo que lo hizo
     y asi sería el ciclo hasta que llegue a los extremos o como es decir que hasta que la variable que cree para
-    que se pase al siguiente sea nula y hasta ahí va mi codigo
+    que se pase al siguiente sea nula
+    y hasta ahí va mi codigo
      */
 
-    public  void turnOnLightStartInTheMiddle(){
+    public void turnOnLightStartInTheMiddle() {
         if (head != null) {
             NodeDE temp = head;
             int pasos = 1;
             int medium;
-            if ((size%2)!=0){
+            if ((size % 2) != 0) {
                 medium = (size / 2) + 1;
-                while (temp!= null){
+                while (temp != null) {
 
-                    if (pasos == medium){
+                    if (pasos == medium) {
                         NodeDE next = temp;
-                        temp.getData().setStatus(true);
-                        temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        if (temp.getData().getLedMolten() != true) {
+                            temp.getData().setStatus(true);
+                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        } else {
+                            temp.getData().setStatus(false);
+                            temp.getData().setOnDate(null);
+                            temp.getData().setOffDate(null);
+                        }
 
-                        while (next.getNext() != null){
+
+                        while (next.getNext() != null) {
 
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-
-                            temp.getData().setStatus(false);
-                            temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-                            next.getData().setStatus(false);
-                            next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            if (temp.getData().getLedMolten() != true) {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            }
+                            if (temp.getData().getLedMolten() != true) {
+                                next.getData().setStatus(false);
+                                next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            }
 
                             temp = temp.getPrevious();
-                            next= next.getNext();
-
-                            temp.getData().setStatus(true);
-                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-                            next.getData().setStatus(true);
-                            next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-
-
-
+                            next = next.getNext();
+                            if (temp.getData().getLedMolten() != true) {
+                                temp.getData().setStatus(true);
+                                temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            } else {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOnDate(null);
+                                temp.getData().setOffDate(null);
+                            }
+                            if (temp.getData().getLedMolten() != true) {
+                                next.getData().setStatus(true);
+                                next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            } else {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOnDate(null);
+                                temp.getData().setOffDate(null);
+                            }
                         }
                     }
                     pasos++;
-                    temp= temp.getNext();
-
-
+                    temp = temp.getNext();
                 }
 
 
+            } else {
+                medium = size / 2;
 
+                while (temp != null) {
+                    if (pasos == medium) {
 
-            } else{
-                medium = size/2;
-
-                while (temp!= null){
-                    if (pasos == medium){
                         NodeDE Next = temp.getNext();
-                        temp.getData().setStatus(true);
-                        temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-                        Next.getData().setStatus(true);
-                        Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        if (temp.getData().getLedMolten() != true) {
+                            temp.getData().setStatus(true);
+                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        } else {
+                            temp.getData().setStatus(false);
+                            temp.getData().setOnDate(null);
+                            temp.getData().setOffDate(null);
+                        }
+                        if (temp.getData().getLedMolten() != true) {
+                            Next.getData().setStatus(true);
+                            Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                        } else {
+                            temp.getData().setStatus(false);
+                            temp.getData().setOnDate(null);
+                            temp.getData().setOffDate(null);
+                        }
 
                         while (Next.getNext() != null) {
 
@@ -163,36 +198,45 @@ public class ListDE {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-
-                            temp.getData().setStatus(false);
-                            temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-                            Next.getData().setStatus(false);
-                            Next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
-
+                            if (temp.getData().getLedMolten() != true) {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            }
+                            if (temp.getData().getLedMolten() != true) {
+                                Next.getData().setStatus(false);
+                                Next.getData().setOffDate(LocalTime.from(LocalDateTime.now()));
+                            }
                             temp = temp.getPrevious();
                             Next = Next.getNext();
-
-                            temp.getData().setStatus(true);
-                            temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-                            Next.getData().setStatus(true);
-                            Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
-
-
+                            if (temp.getData().getLedMolten() != true) {
+                                temp.getData().setStatus(true);
+                                temp.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            } else {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOnDate(null);
+                                temp.getData().setOffDate(null);
+                            }
+                            if (temp.getData().getLedMolten() != true) {
+                                Next.getData().setStatus(true);
+                                Next.getData().setOnDate(LocalTime.from(LocalDateTime.now()));
+                            } else {
+                                temp.getData().setStatus(false);
+                                temp.getData().setOnDate(null);
+                                temp.getData().setOffDate(null);
+                            }
                         }
                     }
                     pasos++;
-                    temp= temp.getNext();
-
+                    temp = temp.getNext();
                 }
-
             }
-
         }
-
     }
+
+
     public void restart() {
         NodeDE temp = head;
-        while (temp != null){
+        while (temp != null) {
             temp.getData().setStatus(false);
             temp.getData().setOffDate(null);
             temp.getData().setOnDate(null);
@@ -200,6 +244,90 @@ public class ListDE {
             temp = temp.getNext();
         }
     }
+
+    // comienzo de la sustentacion
+
+    /*
+    metodo para fundir led
+    este metodo tiene que retornar un led que es el que va a estar fundido
+    el metodo va a recibir un numero aleatorio y va a fundir un led en la lista
+    creamos una variable la cual sea un temporal que me recorra la lista
+    y creamos un numero random que sea mayor que el tamaño
+    creo un ciclo for el cual agregue un contador y por cada vez que el contador sea menor que el numero random
+    se pase al siguiente
+    despues creo una variable de tipo led el cual sea el temporal que obtenga los datos y que funda el bombillo
+    puedo preguntar que si el estado del bombillo es diferente a true que lo cambie, sino que no retorne nada
+
+     */
+
+    public Led meltLed() {
+        NodeDE temp = head;
+        Random random = new Random();
+        int numRandom = random.nextInt(size + 1);
+        for (int counter = 1; counter < numRandom; counter++) {
+            temp = temp.getNext();
+        }
+        Led led = temp.getData();
+        if (led.getLedMolten() != true) {
+            temp.getData().setLedMolten(true);
+            return led;
+        } else {
+            return null;
+        }
+    }
+
+    /*
+    metodo para cambiar el led fundido
+    este me tiene que recibir 2 parametros, un led de la clase Led y el id del led fundido
+    comienzo instanciando los datos en una variable que se llame nuevo led el cual me reciba los datos de un led
+    pregunto si hay datos
+    pregunto que si el tamaño de la lista es 1
+        pregunto que si el id que me dan es igual al id del nodo que hay en la lista
+            y le pregunto que si esta fundido
+            si esta fundido le cambio los datos por la variable nuevo led que es la que me va a ingresar el usuario
+        sino no retorno nada
+    sino hago un ciclo que me recorra la lista hasta que me encuentre el id que me estan pidiendo
+    pregunto que si en ese nodo el led esta fundido
+        si esta fundido le cambio los datos
+    sino no retorno nada
+
+    y al final retorno el led ya que estamos recibiendo un led.
+
+     */
+    public Led changeLedMolten(Led led, int id) {
+        NodeDE temp = head;
+        Led newLed = new Led(led.getId(), false, led.getColor(), false);
+        if (size != 0) {
+            if (size == 1) {
+                if (id == temp.getData().getId()) {
+                    if (temp.getData().getLedMolten() == true) {
+                        temp.setData(newLed);
+                    } else {
+                        return null;
+                    }
+                }
+            }else {
+                while (id != temp.getData().getId()) {
+                    temp.getNext();
+                }
+                if (temp.getData().getLedMolten() == true){
+                    temp.setData(newLed);
+                }else {
+                    return null;
+                }
+            }
+
+        }
+        return led;
+
+
+        // fin de la sustentacion
+    }
+
 }
+
+
+
+
 
 

@@ -12,10 +12,14 @@ public class Led {
     private Boolean status;
     private LocalTime OnDate;
     private LocalTime OffDate;
+    private String color;
+    private Boolean ledMolten;
 
-    public Led(int id, boolean status) {
+    public Led(int id, boolean status, String color, boolean ledMolten) {
         this.id = id;
         this.status = status;
+        this.color = color;
+        this.ledMolten = ledMolten;
     }
 
 

@@ -11,5 +11,4 @@ public class NodeDE {
     public NodeDE (Led data){
         this.data = data;
     }
-
 }

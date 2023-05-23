@@ -8,5 +8,6 @@ import lombok.Data;
 
 public class LedDTO {
     private int id;
+    private String color;
 
 }
